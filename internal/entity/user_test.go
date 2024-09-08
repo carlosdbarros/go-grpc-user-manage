@@ -1,70 +1,54 @@
 package entity
 
 import (
-	"fmt"
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/assert"
-	"os"
 	"testing"
 )
 
-func TestMain(m *testing.M) {
-	println("#################### STARTING TESTS ####################")
-	println("Before all tests")
-	code := m.Run()
-	println("After all tests")
-	println("#################### FINISHED TESTS ####################")
-	os.Exit(code)
-}
-
-func setupTest() func() {
-	setup()
-	return teardown
-}
-
-var (
-	user     *User
+type userTestContext struct {
+	sut      *User
 	err      error
-	name     = ""
-	email    = ""
-	password = ""
-)
-
-func setup() {
-	println("Before each test")
-	name = faker.Name()
-	email = faker.Email()
-	password = faker.Password()
-	user, err = NewUser(name, email, password)
-	fmt.Printf("User created: %v\n", user)
-
+	name     string
+	email    string
+	password string
 }
 
-func teardown() {
-	println("After each test")
-	user = nil
-	err = nil
-	name = ""
-	email = ""
-	password = ""
-	println("--------------------")
+func (tc *userTestContext) setUp() {
+	tc.name = faker.Name()
+	tc.email = faker.Email()
+	tc.password = faker.Password()
+	tc.sut, tc.err = NewUser(tc.name, tc.email, tc.password)
+}
+
+func (tc *userTestContext) tearDown() {
+	tc.sut = nil
+	tc.err = nil
+	tc.name = ""
+	tc.email = ""
+	tc.password = ""
 }
 
 func TestNewUser(t *testing.T) {
-	defer setupTest()()
-	assert.Nil(t, err)
-	assert.NotNil(t, user)
-	assert.NotEmpty(t, user.ID)
-	assert.NotEmpty(t, user.Password)
-	assert.Equal(t, name, user.Name)
-	assert.Equal(t, email, user.Email)
-}
+	tc := &userTestContext{}
+	t.Run("Should create a new user with correct params", func(t *testing.T) {
+		tc.setUp()
+		defer tc.tearDown()
+		assert.Nil(t, tc.err)
+		assert.NotNil(t, tc.sut)
+		assert.NotEmpty(t, tc.sut.ID)
+		assert.NotEmpty(t, tc.sut.Password)
+		assert.Equal(t, tc.name, tc.sut.Name)
+		assert.Equal(t, tc.email, tc.sut.Email)
+	})
 
-func TestUser_ValidatePassword(t *testing.T) {
-	defer setupTest()()
-	assert.Nil(t, err)
-	assert.NotNil(t, user)
-	assert.True(t, user.ValidatePassword(password))
-	assert.False(t, user.ValidatePassword("123"))
-	assert.NotEqual(t, password, user.Password)
+	t.Run("Should create a new user with valid password", func(t *testing.T) {
+		tc.setUp()
+		defer tc.tearDown()
+		assert.Nil(t, tc.err)
+		assert.NotNil(t, tc.sut)
+		assert.True(t, tc.sut.ValidatePassword(tc.password))
+		assert.False(t, tc.sut.ValidatePassword("123"))
+		assert.NotEqual(t, tc.password, tc.sut.Password)
+	})
 }

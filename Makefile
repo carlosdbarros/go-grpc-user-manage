@@ -10,9 +10,12 @@ run:
 tidy:
 	$(GOCMD) mod tidy
 
+.PHONY: test
 test:
 	$(GOCMD) test -v ./...
 
+banchmark:
+	$(GOCMD) test -bench=. ./... -benchmem
 
 ## gRPC
 proto:
