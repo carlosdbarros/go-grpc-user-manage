@@ -5,6 +5,7 @@ go 1.23.0
 require (
 	github.com/go-faker/faker/v4 v4.5.0
 	github.com/google/uuid v1.6.0
+	github.com/mattn/go-sqlite3 v1.14.23
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/crypto v0.21.0

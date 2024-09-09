@@ -26,7 +26,11 @@ func (suite *UserTestSuite) SetupTest() {
 func (suite *UserTestSuite) TearDownTest() {
 }
 
-func (suite *UserTestSuite) TestNewUser_ShouldCreateANewUserWithCorrectParams() {
+func TestSuiteUser(t *testing.T) {
+	suite.Run(t, new(UserTestSuite))
+}
+
+func (suite *UserTestSuite) TestUser_NewUser_ShouldCreateANewUserWithCorrectParams() {
 	assert.Nil(suite.T(), suite.err)
 	assert.NotNil(suite.T(), suite.sut)
 	assert.NotEmpty(suite.T(), suite.sut.ID)
@@ -35,14 +39,10 @@ func (suite *UserTestSuite) TestNewUser_ShouldCreateANewUserWithCorrectParams() 
 	assert.Equal(suite.T(), suite.email, suite.sut.Email)
 }
 
-func (suite *UserTestSuite) TestNewUser_ShouldCreateANewUserWithValidPassword() {
+func (suite *UserTestSuite) TestUser_ValidatePassword_ShouldCreateANewUserWithValidPassword() {
 	assert.Nil(suite.T(), suite.err)
 	assert.NotNil(suite.T(), suite.sut)
 	assert.True(suite.T(), suite.sut.ValidatePassword(suite.password))
 	assert.False(suite.T(), suite.sut.ValidatePassword("123"))
 	assert.NotEqual(suite.T(), suite.password, suite.sut.Password)
-}
-
-func TestSuiteUser(t *testing.T) {
-	suite.Run(t, new(UserTestSuite))
 }

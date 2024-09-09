@@ -22,7 +22,7 @@ func (suite *PermissionTestSuite) SetupTest() {
 func (suite *PermissionTestSuite) TearDownTest() {
 }
 
-func (suite *PermissionTestSuite) TestMewPermission_ShouldCreateANewPermissionWithCorrectParams() {
+func (suite *PermissionTestSuite) TestPermission_NewPermission_ShouldCreateNewPermission() {
 	assert.NotNil(suite.T(), suite.sut)
 	assert.NotEmpty(suite.T(), suite.sut.ID)
 	assert.Equal(suite.T(), suite.name, suite.sut.Name)
