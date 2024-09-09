@@ -2,33 +2,33 @@ package entity
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 	"testing"
 )
 
-type permissionTestContext struct {
+type PermissionTestSuite struct {
+	suite.Suite
 	sut      *Permission
 	name     string
 	codename string
 }
 
-func (tc *permissionTestContext) setUp() {
-	tc.name = "Criar Todo"
-	tc.codename = "todo.add"
-	tc.sut = NewPermission(tc.name, tc.codename)
+func (suite *PermissionTestSuite) SetupTest() {
+	suite.name = "Criar Todo"
+	suite.codename = "todo.add"
+	suite.sut = NewPermission(suite.name, suite.codename)
 }
 
-func (tc *permissionTestContext) tearDown() {
-	tc.sut = nil
+func (suite *PermissionTestSuite) TearDownTest() {
 }
 
-func TestNewPermission(t *testing.T) {
-	tc := &permissionTestContext{}
-	t.Run("Should create a new permission with correct params", func(t *testing.T) {
-		tc.setUp()
-		defer tc.tearDown()
-		assert.NotNil(t, tc.sut)
-		assert.NotEmpty(t, tc.sut.ID)
-		assert.Equal(t, tc.name, tc.sut.Name)
-		assert.Equal(t, tc.codename, tc.sut.Codename)
-	})
+func (suite *PermissionTestSuite) TestMewPermission_ShouldCreateANewPermissionWithCorrectParams() {
+	assert.NotNil(suite.T(), suite.sut)
+	assert.NotEmpty(suite.T(), suite.sut.ID)
+	assert.Equal(suite.T(), suite.name, suite.sut.Name)
+	assert.Equal(suite.T(), suite.codename, suite.sut.Codename)
+}
+
+func TestSuitePermission(t *testing.T) {
+	suite.Run(t, new(PermissionTestSuite))
 }
