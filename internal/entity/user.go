@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"errors"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -17,12 +18,36 @@ func NewUser(name, email, password string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &User{
-		ID:       uuid.New().String(),
+	user := &User{
+		ID:       uuid.NewString(),
 		Name:     name,
 		Email:    email,
 		Password: string(hashedPassword),
-	}, nil
+	}
+	err = user.Validate()
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+var (
+	ErrNameIsRequired     = errors.New("name is required")
+	ErrEmailIsRequired    = errors.New("email is required")
+	ErrPasswordIsRequired = errors.New("password is required")
+)
+
+func (u *User) Validate() error {
+	if u.Name == "" {
+		return ErrNameIsRequired
+	}
+	if u.Email == "" {
+		return ErrEmailIsRequired
+	}
+	if u.Password == "" {
+		return ErrPasswordIsRequired
+	}
+	return nil
 }
 
 func (u *User) ValidatePassword(password string) bool {
