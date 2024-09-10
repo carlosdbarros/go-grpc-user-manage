@@ -1,38 +1,38 @@
 # GOLANG with gRPC
 
-## Variables
+## Envs
 GOCMD=go
+
 
 ## Targets
 .PHONY: run-grpc-server
 run-grpc-server:
-	$(GOCMD) run cmd/grpc-server/main.go
-
-.PHONY: run-web-server
-run-web-server:
-	$(GOCMD) run cmd/server/main.go
+	cd cmd/grpc-server && $(GOCMD) run main.go
 
 .PHONY: tidy
 tidy:
 	$(GOCMD) mod tidy
 
+
+## Tests
 .PHONY: test
 test:
 	$(GOCMD) test -v ./...
+
+.PHONY: test-cover
+cover:
+	$(GOCMD) test -coverprofile=coverage.out ./...
+	$(GOCMD) tool cover -html=coverage.out
 
 .PHONY: banchmark
 banchmark:
 	$(GOCMD) test -bench=. ./... -benchmem
 
+.PHONY: evans
+evans:
+	evans -r repl --host localhost --port 50051
+
 ## gRPC
-.PHONY: proto-user
-proto-user:
-	protoc --go_out=. --go-grpc_out=. proto/user.proto
-
-.PHONY: proto-permission
-proto-permission:
-	protoc --go_out=. --go-grpc_out=. proto/permission.proto
-
 .PHONY: proto-all
 proto-all:
 	protoc -I ./proto --go_out=. --go-grpc_out=. ./proto/*.proto

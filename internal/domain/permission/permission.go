@@ -1,6 +1,8 @@
-package entity
+package permission
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+)
 
 type Permission struct {
 	ID       string `json:"id"`
@@ -10,7 +12,7 @@ type Permission struct {
 
 func NewPermission(name, codename string) *Permission {
 	return &Permission{
-		ID:       uuid.New().String(),
+		ID:       uuid.NewString(),
 		Name:     name,
 		Codename: codename,
 	}

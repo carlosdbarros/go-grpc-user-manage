@@ -1,4 +1,4 @@
-package entity
+package permission
 
 import (
 	"github.com/stretchr/testify/assert"

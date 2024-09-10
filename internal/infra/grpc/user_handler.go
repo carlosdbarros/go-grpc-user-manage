@@ -2,9 +2,8 @@ package grpc
 
 import (
 	"context"
-	"github.com/carlosdbarros/go-grpc-user-manage/internal/entity"
+	"github.com/carlosdbarros/go-grpc-user-manage/internal/domain/user"
 	"github.com/carlosdbarros/go-grpc-user-manage/internal/pb"
-	"github.com/carlosdbarros/go-grpc-user-manage/internal/repository"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -12,15 +11,15 @@ import (
 type UserHandler struct {
 	pb.UnimplementedUserServiceServer
 
-	Repo repository.UserRepository
+	Repo user.UserRepository
 }
 
-func NewUserHandler(repo repository.UserRepository) *UserHandler {
+func NewUserHandler(repo user.UserRepository) *UserHandler {
 	return &UserHandler{Repo: repo}
 }
 
 func (h *UserHandler) CreateUser(_ context.Context, input *pb.CreateUserRequest) (*pb.User, error) {
-	user, err := entity.NewUser(input.Name, input.Email, input.Password)
+	user, err := user.NewUser(input.Name, input.Email, input.Password)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
@@ -41,7 +40,7 @@ func (h *UserHandler) CreateUserStreamBidirectional(stream pb.UserService_Create
 		if err != nil {
 			return err
 		}
-		user, err := entity.NewUser(input.Name, input.Email, input.Password)
+		user, err := user.NewUser(input.Name, input.Email, input.Password)
 		if err != nil {
 			return status.Error(codes.InvalidArgument, err.Error())
 		}

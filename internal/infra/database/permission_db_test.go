@@ -3,8 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"github.com/carlosdbarros/go-grpc-user-manage/internal/entity"
-	"github.com/carlosdbarros/go-grpc-user-manage/internal/repository"
+	"github.com/carlosdbarros/go-grpc-user-manage/internal/domain/permission"
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -14,7 +13,7 @@ import (
 type PermissionDBTestSuite struct {
 	suite.Suite
 	db   *sql.DB
-	repo repository.PermissionRepository
+	repo permission.PermissionRepository
 }
 
 func (suite *PermissionDBTestSuite) SetupTest() {
@@ -38,7 +37,7 @@ func (suite *PermissionDBTestSuite) TestPermissionDBRepository_AddPermission_Sho
 	var (
 		err             error
 		stmt            *sql.Stmt
-		foundPermission entity.Permission
+		foundPermission permission.Permission
 	)
 	permission := makePermission("", "")
 
@@ -59,7 +58,7 @@ func (suite *PermissionDBTestSuite) TestPermissionDBRepository_FindPermissionByI
 	var (
 		err             error
 		stmt            *sql.Stmt
-		foundPermission entity.Permission
+		foundPermission permission.Permission
 	)
 
 	permission := makePermission("", "")
@@ -80,7 +79,7 @@ func (suite *PermissionDBTestSuite) TestPermissionDBRepository_DeletePermission_
 	var (
 		err        error
 		stmt       *sql.Stmt
-		permission *entity.Permission
+		permission *permission.Permission
 	)
 
 	permission = makePermission("", "")
@@ -100,7 +99,7 @@ func (suite *PermissionDBTestSuite) TestPermissionDBRepository_DeletePermission_
 func (suite *PermissionDBTestSuite) TestPermissionDBRepository_FindAllPermissions_ShouldFindAllPermissions() {
 	var (
 		err         error
-		permissions []*entity.Permission
+		permissions []*permission.Permission
 	)
 
 	permission1 := makePermission("", "")
@@ -124,12 +123,12 @@ func (suite *PermissionDBTestSuite) TestPermissionDBRepository_FindAllPermission
 	assert.Equal(suite.T(), permission2.Name, permissions[1].Name)
 }
 
-func makePermission(name, codename string) *entity.Permission {
+func makePermission(name, codename string) *permission.Permission {
 	if name == "" {
 		name = faker.Word()
 	}
 	if codename == "" {
 		codename = fmt.Sprintf("%s.%s", faker.Word(), faker.Word())
 	}
-	return entity.NewPermission(name, codename)
+	return permission.NewPermission(name, codename)
 }

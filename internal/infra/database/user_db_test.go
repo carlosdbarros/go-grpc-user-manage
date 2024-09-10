@@ -2,8 +2,7 @@ package database
 
 import (
 	"database/sql"
-	"github.com/carlosdbarros/go-grpc-user-manage/internal/entity"
-	"github.com/carlosdbarros/go-grpc-user-manage/internal/repository"
+	"github.com/carlosdbarros/go-grpc-user-manage/internal/domain/user"
 	"github.com/go-faker/faker/v4"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
@@ -14,7 +13,7 @@ import (
 type UserDBTestSuite struct {
 	suite.Suite
 	db   *sql.DB
-	repo repository.UserRepository
+	repo user.UserRepository
 }
 
 func (suite *UserDBTestSuite) SetupTest() {
@@ -38,7 +37,7 @@ func (suite *UserDBTestSuite) TestUserDBRepository_AddUser_ShouldAddUserToDataba
 	var (
 		err       error
 		stmt      *sql.Stmt
-		foundUser entity.User
+		foundUser user.User
 	)
 	user := makeUser(suite.T(), "", "", "")
 
@@ -60,7 +59,7 @@ func (suite *UserDBTestSuite) TestUserDBRepository_AddUser_ShouldAddUserToDataba
 func (suite *UserDBTestSuite) TestUserDBRepository_FindUserByEmail_ShouldFindUserByEmail() {
 	var (
 		err       error
-		foundUser *entity.User
+		foundUser *user.User
 	)
 	email := faker.Email()
 	user := makeUser(suite.T(), "", email, "")
@@ -77,7 +76,7 @@ func (suite *UserDBTestSuite) TestUserDBRepository_FindUserByEmail_ShouldFindUse
 	assert.Equal(suite.T(), user.Password, foundUser.Password)
 }
 
-func makeUser(t *testing.T, name, email, password string) *entity.User {
+func makeUser(t *testing.T, name, email, password string) *user.User {
 	if name == "" {
 		name = faker.Name()
 	}
@@ -87,7 +86,7 @@ func makeUser(t *testing.T, name, email, password string) *entity.User {
 	if password == "" {
 		password = faker.Password()
 	}
-	user, err := entity.NewUser(name, email, password)
+	user, err := user.NewUser(name, email, password)
 	if err != nil {
 		t.Fatal(err)
 	}
