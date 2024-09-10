@@ -29,9 +29,13 @@ banchmark:
 proto-user:
 	protoc --go_out=. --go-grpc_out=. proto/user.proto
 
+.PHONY: proto-permission
+proto-permission:
+	protoc --go_out=. --go-grpc_out=. proto/permission.proto
+
 .PHONY: proto-all
 proto-all:
-	protoc --go_out=. --go-grpc_out=. proto/*.proto
+	protoc -I ./proto --go_out=. --go-grpc_out=. ./proto/*.proto
 
 .PHONY: grpcui
 grpcui:

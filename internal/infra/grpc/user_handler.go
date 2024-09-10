@@ -19,7 +19,7 @@ func NewUserHandler(repo repository.UserRepository) *UserHandler {
 	return &UserHandler{Repo: repo}
 }
 
-func (h *UserHandler) CreateUser(ctx context.Context, input *pb.CreateUserRequest) (*pb.User, error) {
+func (h *UserHandler) CreateUser(_ context.Context, input *pb.CreateUserRequest) (*pb.User, error) {
 	user, err := entity.NewUser(input.Name, input.Email, input.Password)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -60,7 +60,7 @@ func (h *UserHandler) CreateUserStreamBidirectional(stream pb.UserService_Create
 	}
 }
 
-func (h *UserHandler) FindUserByEmail(ctx context.Context, input *pb.FindUserByEmailRequest) (*pb.User, error) {
+func (h *UserHandler) FindUserByEmail(_ context.Context, input *pb.FindUserByEmailRequest) (*pb.User, error) {
 	user, err := h.Repo.FindUserByEmail(input.Email)
 	if err != nil {
 		return nil, status.Error(codes.NotFound, err.Error())
@@ -72,7 +72,7 @@ func (h *UserHandler) FindUserByEmail(ctx context.Context, input *pb.FindUserByE
 	}, nil
 }
 
-func (h *UserHandler) FindAllUsers(ctx context.Context, _ *pb.Empty) (*pb.FindAllUsersResponse, error) {
+func (h *UserHandler) FindAllUsers(_ context.Context, _ *pb.UserEmpty) (*pb.FindAllUsersResponse, error) {
 	users, err := h.Repo.FindAllUsers()
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())

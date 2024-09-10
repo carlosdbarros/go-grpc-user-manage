@@ -3,18 +3,18 @@ package grpc.user;
 option go_package = "internal/pb";
 
 service UserService {
-    rpc CreateUser (CreateUserRequest) returns (User) {}
-    rpc CreateUserStreamBidirectional (stream CreateUserRequest) returns (stream User) {}
-    rpc FindUserByEmail (FindUserByEmailRequest) returns (User) {}
-    rpc FindAllUsers (Empty) returns (FindAllUsersResponse) {}
+  rpc CreateUser (CreateUserRequest) returns (User) {}
+  rpc CreateUserStreamBidirectional (stream CreateUserRequest) returns (stream User) {}
+  rpc FindUserByEmail (FindUserByEmailRequest) returns (User) {}
+  rpc FindAllUsers (UserEmpty) returns (FindAllUsersResponse) {}
 }
 
-message Empty {}
+message UserEmpty {}
 
 message CreateUserRequest {
-    string name = 1;
-    string email = 2;
-    string password = 3;
+  string name = 1;
+  string email = 2;
+  string password = 3;
 }
 
 message User {

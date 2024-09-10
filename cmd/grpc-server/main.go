@@ -21,9 +21,13 @@ func main() {
 	userRepo := database.NewUserDBRepository(db)
 	userHandler := grpc2.NewUserHandler(userRepo)
 
+	permRepo := database.NewPermissionDBRepository(db)
+	permHandler := grpc2.NewPermissionHandler(permRepo)
+
 	// Create a new gRPC server
 	server := grpc.NewServer()
 	pb.RegisterUserServiceServer(server, userHandler)
+	pb.RegisterPermissionServiceServer(server, permHandler)
 	reflection.Register(server)
 
 	// Listen on port 50051
@@ -51,5 +55,15 @@ func initDB() (*sql.DB, error) {
 	if err != nil {
 		panic(err)
 	}
+
+	permissionStmt, err := db.Prepare("create table if not exists permissions (id text, name text, codename text)")
+	if err != nil {
+		return nil, err
+	}
+	_, err = permissionStmt.Exec()
+	if err != nil {
+		return nil, err
+	}
+
 	return db, nil
 }
