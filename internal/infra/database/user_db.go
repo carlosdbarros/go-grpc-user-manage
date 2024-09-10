@@ -38,3 +38,20 @@ func (repo *UserDBRepository) FindUserByEmail(email string) (*entity.User, error
 	}
 	return user, nil
 }
+
+func (repo *UserDBRepository) FindAllUsers() ([]*entity.User, error) {
+	rows, err := repo.DB.Query("select id, name, email, password from users")
+	if err != nil {
+		return nil, err
+	}
+	var users []*entity.User
+	for rows.Next() {
+		user := &entity.User{}
+		err = rows.Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}

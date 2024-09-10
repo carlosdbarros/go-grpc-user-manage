@@ -1,0 +1,32 @@
+syntax = "proto3";
+package grpc.user;
+option go_package = "internal/pb";
+
+service UserService {
+    rpc CreateUser (CreateUserRequest) returns (User) {}
+    rpc CreateUserStreamBidirectional (stream CreateUserRequest) returns (stream User) {}
+    rpc FindUserByEmail (FindUserByEmailRequest) returns (User) {}
+    rpc FindAllUsers (Empty) returns (FindAllUsersResponse) {}
+}
+
+message Empty {}
+
+message CreateUserRequest {
+    string name = 1;
+    string email = 2;
+    string password = 3;
+}
+
+message User {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+}
+
+message FindUserByEmailRequest {
+  string email = 1;
+}
+
+message FindAllUsersResponse {
+  repeated User users = 1;
+}

@@ -4,9 +4,15 @@
 GOCMD=go
 
 ## Targets
-run:
+.PHONY: run-grpc-server
+run-grpc-server:
 	$(GOCMD) run cmd/grpc-server/main.go
 
+.PHONY: run-web-server
+run-web-server:
+	$(GOCMD) run cmd/server/main.go
+
+.PHONY: tidy
 tidy:
 	$(GOCMD) mod tidy
 
@@ -14,9 +20,19 @@ tidy:
 test:
 	$(GOCMD) test -v ./...
 
+.PHONY: banchmark
 banchmark:
 	$(GOCMD) test -bench=. ./... -benchmem
 
 ## gRPC
-proto:
-	protoc --go_out=. --go-grpc_out=. internal/proto/*.proto
+.PHONY: proto-user
+proto-user:
+	protoc --go_out=. --go-grpc_out=. proto/user.proto
+
+.PHONY: proto-all
+proto-all:
+	protoc --go_out=. --go-grpc_out=. proto/*.proto
+
+.PHONY: grpcui
+grpcui:
+	grpcui -plaintext localhost:50051
