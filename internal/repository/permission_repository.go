@@ -6,5 +6,5 @@ type PermissionRepository interface {
 	AddPermission(permission *entity.Permission) (*entity.Permission, error)
 	FindPermissionById(id string) (*entity.Permission, error)
 	DeletePermission(id string) error
-	//FindAllPermissions() ([]*entity.Permission, error)
+	FindAllPermissions() ([]*entity.Permission, error)
 }

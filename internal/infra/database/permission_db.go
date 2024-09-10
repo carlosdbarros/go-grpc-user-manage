@@ -50,3 +50,20 @@ func (repo *PermissionDBRepository) DeletePermission(id string) error {
 	}
 	return nil
 }
+
+func (repo *PermissionDBRepository) FindAllPermissions() ([]*entity.Permission, error) {
+	rows, err := repo.DB.Query("select id, codename, name from permissions")
+	if err != nil {
+		return nil, err
+	}
+	var permissions []*entity.Permission
+	for rows.Next() {
+		permission := &entity.Permission{}
+		err = rows.Scan(&permission.ID, &permission.Codename, &permission.Name)
+		if err != nil {
+			return nil, err
+		}
+		permissions = append(permissions, permission)
+	}
+	return permissions, nil
+}
