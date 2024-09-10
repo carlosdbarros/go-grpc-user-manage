@@ -24,3 +24,17 @@ func (repo *PermissionDBRepository) AddPermission(permission *entity.Permission)
 	}
 	return permission, nil
 }
+
+func (repo *PermissionDBRepository) FindPermissionById(id string) (*entity.Permission, error) {
+	stmt, err := repo.DB.Prepare("select id, codename, name from permissions where id = $1")
+	if err != nil {
+		return nil, err
+	}
+	row := stmt.QueryRow(id)
+	permission := &entity.Permission{}
+	err = row.Scan(&permission.ID, &permission.Codename, &permission.Name)
+	if err != nil {
+		return nil, err
+	}
+	return permission, nil
+}

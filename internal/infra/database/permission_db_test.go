@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/carlosdbarros/go-grpc-user-manage/internal/entity"
 	"github.com/carlosdbarros/go-grpc-user-manage/internal/repository"
 	"github.com/go-faker/faker/v4"
@@ -54,12 +55,33 @@ func (suite *PermissionDBTestSuite) TestPermissionDBRepository_AddPermission_Sho
 	assert.Equal(suite.T(), permission.Name, foundPermission.Name)
 }
 
+func (suite *PermissionDBTestSuite) TestPermissionDBRepository_FindPermissionById_ShouldFindPermissionById() {
+	var (
+		err             error
+		stmt            *sql.Stmt
+		foundPermission entity.Permission
+	)
+	permission := makePermission(suite.T(), "", "")
+
+	permission, err = suite.repo.AddPermission(permission)
+	assert.Nil(suite.T(), err)
+
+	stmt, err = suite.db.Prepare("select id, codename, name from permissions where id = $1")
+	assert.Nil(suite.T(), err)
+	row := stmt.QueryRow(permission.ID)
+	err = row.Scan(&foundPermission.ID, &foundPermission.Codename, &foundPermission.Name)
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), permission.ID, foundPermission.ID)
+	assert.Equal(suite.T(), permission.Codename, foundPermission.Codename)
+	assert.Equal(suite.T(), permission.Name, foundPermission.Name)
+}
+
 func makePermission(t *testing.T, name, codename string) *entity.Permission {
 	if name == "" {
 		name = faker.Word()
 	}
 	if codename == "" {
-		codename = faker.Word()
+		codename = fmt.Sprintf("%s.%s", faker.Word(), faker.Word())
 	}
 	return entity.NewPermission(name, codename)
 }
