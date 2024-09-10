@@ -38,3 +38,15 @@ func (repo *PermissionDBRepository) FindPermissionById(id string) (*entity.Permi
 	}
 	return permission, nil
 }
+
+func (repo *PermissionDBRepository) DeletePermission(id string) error {
+	stmt, err := repo.DB.Prepare("delete from permissions where id = $1")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -40,7 +40,7 @@ func (suite *PermissionDBTestSuite) TestPermissionDBRepository_AddPermission_Sho
 		stmt            *sql.Stmt
 		foundPermission entity.Permission
 	)
-	permission := makePermission(suite.T(), "", "")
+	permission := makePermission("", "")
 
 	permission, err = suite.repo.AddPermission(permission)
 	assert.Nil(suite.T(), err)
@@ -61,8 +61,8 @@ func (suite *PermissionDBTestSuite) TestPermissionDBRepository_FindPermissionByI
 		stmt            *sql.Stmt
 		foundPermission entity.Permission
 	)
-	permission := makePermission(suite.T(), "", "")
 
+	permission := makePermission("", "")
 	permission, err = suite.repo.AddPermission(permission)
 	assert.Nil(suite.T(), err)
 
@@ -76,7 +76,28 @@ func (suite *PermissionDBTestSuite) TestPermissionDBRepository_FindPermissionByI
 	assert.Equal(suite.T(), permission.Name, foundPermission.Name)
 }
 
-func makePermission(t *testing.T, name, codename string) *entity.Permission {
+func (suite *PermissionDBTestSuite) TestPermissionDBRepository_DeletePermission_ShouldDeletePermissionFromDatabase() {
+	var (
+		err        error
+		stmt       *sql.Stmt
+		permission *entity.Permission
+	)
+
+	permission = makePermission("", "")
+	_, err = suite.repo.AddPermission(permission)
+	assert.Nil(suite.T(), err)
+
+	err = suite.repo.DeletePermission(permission.ID)
+	assert.Nil(suite.T(), err)
+
+	stmt, err = suite.db.Prepare("select id, codename, name from permissions where id = $1")
+	assert.Nil(suite.T(), err)
+	row := stmt.QueryRow(permission.ID)
+	err = row.Scan(&permission.ID, &permission.Codename, &permission.Name)
+	assert.NotNil(suite.T(), err)
+}
+
+func makePermission(name, codename string) *entity.Permission {
 	if name == "" {
 		name = faker.Word()
 	}
