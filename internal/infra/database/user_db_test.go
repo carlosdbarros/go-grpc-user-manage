@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"github.com/carlosdbarros/go-grpc-user-manage/internal/entity"
+	"github.com/carlosdbarros/go-grpc-user-manage/internal/repository"
 	"github.com/go-faker/faker/v4"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
@@ -13,7 +14,7 @@ import (
 type UserDBTestSuite struct {
 	suite.Suite
 	db   *sql.DB
-	repo UserRepository
+	repo repository.UserRepository
 }
 
 func (suite *UserDBTestSuite) SetupTest() {
