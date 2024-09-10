@@ -19,7 +19,7 @@ type UserDBTestSuite struct {
 
 func (suite *UserDBTestSuite) SetupTest() {
 	var err error
-	suite.db, err = initDatabase()
+	suite.db, err = initSqliteInMemory()
 	if err != nil {
 		suite.T().Fatal(err)
 	}
@@ -77,25 +77,6 @@ func (suite *UserDBTestSuite) TestUserDBRepository_FindUserByEmail_ShouldFindUse
 	assert.Equal(suite.T(), user.Password, foundUser.Password)
 }
 
-// Test Utils
-
-func initDatabase() (*sql.DB, error) {
-	// SQLite in-memory database
-	db, err := sql.Open("sqlite3", ":memory:")
-	if err != nil {
-		return nil, err
-	}
-	stmt, err := db.Prepare("create table if not exists users (id text, name text, email text, password text)")
-	if err != nil {
-		return nil, err
-	}
-	_, err = stmt.Exec()
-	if err != nil {
-		return nil, err
-	}
-	return db, nil
-}
-
 func makeUser(t *testing.T, name, email, password string) *entity.User {
 	if name == "" {
 		name = faker.Name()
@@ -112,5 +93,3 @@ func makeUser(t *testing.T, name, email, password string) *entity.User {
 	}
 	return user
 }
-
-// ############################
