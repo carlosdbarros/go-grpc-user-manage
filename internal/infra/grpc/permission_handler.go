@@ -2,7 +2,7 @@ package grpc
 
 import (
 	"context"
-	"github.com/carlosdbarros/go-grpc-user-manage/internal/domain/permission"
+	permissionDomain "github.com/carlosdbarros/go-grpc-user-manage/internal/domain/permission"
 	pb "github.com/carlosdbarros/go-grpc-user-manage/internal/pb/permission"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -11,15 +11,15 @@ import (
 type PermissionHandler struct {
 	pb.UnimplementedPermissionServiceServer
 
-	Repo permission.PermissionRepository
+	Repo permissionDomain.PermissionRepository
 }
 
-func NewPermissionHandler(repo permission.PermissionRepository) *PermissionHandler {
+func NewPermissionHandler(repo permissionDomain.PermissionRepository) *PermissionHandler {
 	return &PermissionHandler{Repo: repo}
 }
 
 func (h *PermissionHandler) CreatePermission(_ context.Context, input *pb.CreatePermissionRequest) (*pb.Permission, error) {
-	permission := permission.NewPermission(input.Codename, input.Name)
+	permission := permissionDomain.NewPermission(input.Codename, input.Name)
 	_, err := h.Repo.AddPermission(permission)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())

@@ -2,7 +2,7 @@ package grpc
 
 import (
 	"context"
-	"github.com/carlosdbarros/go-grpc-user-manage/internal/domain/user"
+	userDomain "github.com/carlosdbarros/go-grpc-user-manage/internal/domain/user"
 	pb "github.com/carlosdbarros/go-grpc-user-manage/internal/pb/user"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -11,15 +11,15 @@ import (
 type UserHandler struct {
 	pb.UnimplementedUserServiceServer
 
-	Repo user.UserRepository
+	Repo userDomain.UserRepository
 }
 
-func NewUserHandler(repo user.UserRepository) *UserHandler {
+func NewUserHandler(repo userDomain.UserRepository) *UserHandler {
 	return &UserHandler{Repo: repo}
 }
 
 func (h *UserHandler) CreateUser(_ context.Context, input *pb.CreateUserRequest) (*pb.User, error) {
-	user, err := user.NewUser(input.Name, input.Email, input.Password)
+	user, err := userDomain.NewUser(input.Name, input.Email, input.Password)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
@@ -40,7 +40,7 @@ func (h *UserHandler) CreateUserStreamBidirectional(stream pb.UserService_Create
 		if err != nil {
 			return err
 		}
-		user, err := user.NewUser(input.Name, input.Email, input.Password)
+		user, err := userDomain.NewUser(input.Name, input.Email, input.Password)
 		if err != nil {
 			return status.Error(codes.InvalidArgument, err.Error())
 		}

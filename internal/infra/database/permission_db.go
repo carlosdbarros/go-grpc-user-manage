@@ -2,36 +2,36 @@ package database
 
 import (
 	"database/sql"
-	"github.com/carlosdbarros/go-grpc-user-manage/internal/domain/permission"
+	permissionDomain "github.com/carlosdbarros/go-grpc-user-manage/internal/domain/permission"
 )
 
-type PermissionDBRepository struct {
+type PermissionDBR struct {
 	DB *sql.DB
 }
 
-func NewPermissionDBRepository(db *sql.DB) *PermissionDBRepository {
-	return &PermissionDBRepository{DB: db}
+func NewPermissionDB(db *sql.DB) *PermissionDBR {
+	return &PermissionDBR{DB: db}
 }
 
-func (repo *PermissionDBRepository) AddPermission(permission *permission.Permission) (*permission.Permission, error) {
+func (repo *PermissionDBR) AddPermission(input *permissionDomain.Permission) (*permissionDomain.Permission, error) {
 	stmt, err := repo.DB.Prepare("insert into permissions(id, codename, name) values ($1, $2, $3)")
 	if err != nil {
 		return nil, err
 	}
-	_, err = stmt.Exec(permission.ID, permission.Codename, permission.Name)
+	_, err = stmt.Exec(input.ID, input.Codename, input.Name)
 	if err != nil {
 		return nil, err
 	}
-	return permission, nil
+	return input, nil
 }
 
-func (repo *PermissionDBRepository) FindPermissionById(id string) (*permission.Permission, error) {
+func (repo *PermissionDBR) FindPermissionById(id string) (*permissionDomain.Permission, error) {
 	stmt, err := repo.DB.Prepare("select id, codename, name from permissions where id = $1")
 	if err != nil {
 		return nil, err
 	}
 	row := stmt.QueryRow(id)
-	permission := &permission.Permission{}
+	permission := &permissionDomain.Permission{}
 	err = row.Scan(&permission.ID, &permission.Codename, &permission.Name)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func (repo *PermissionDBRepository) FindPermissionById(id string) (*permission.P
 	return permission, nil
 }
 
-func (repo *PermissionDBRepository) DeletePermission(id string) error {
+func (repo *PermissionDBR) DeletePermission(id string) error {
 	stmt, err := repo.DB.Prepare("delete from permissions where id = $1")
 	if err != nil {
 		return err
@@ -51,14 +51,14 @@ func (repo *PermissionDBRepository) DeletePermission(id string) error {
 	return nil
 }
 
-func (repo *PermissionDBRepository) FindAllPermissions() ([]*permission.Permission, error) {
+func (repo *PermissionDBR) FindAllPermissions() ([]*permissionDomain.Permission, error) {
 	rows, err := repo.DB.Query("select id, codename, name from permissions")
 	if err != nil {
 		return nil, err
 	}
-	var permissions []*permission.Permission
+	var permissions []*permissionDomain.Permission
 	for rows.Next() {
-		permission := &permission.Permission{}
+		permission := &permissionDomain.Permission{}
 		err = rows.Scan(&permission.ID, &permission.Codename, &permission.Name)
 		if err != nil {
 			return nil, err

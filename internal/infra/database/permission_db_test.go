@@ -3,7 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"github.com/carlosdbarros/go-grpc-user-manage/internal/domain/permission"
+	permissionDomain "github.com/carlosdbarros/go-grpc-user-manage/internal/domain/permission"
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -12,8 +12,8 @@ import (
 
 type PermissionDBTestSuite struct {
 	suite.Suite
-	db   *sql.DB
-	repo permission.PermissionRepository
+	db  *sql.DB
+	sut permissionDomain.PermissionRepository
 }
 
 func (suite *PermissionDBTestSuite) SetupTest() {
@@ -22,7 +22,7 @@ func (suite *PermissionDBTestSuite) SetupTest() {
 	if err != nil {
 		suite.T().Fatal(err)
 	}
-	suite.repo = NewPermissionDBRepository(suite.db)
+	suite.sut = NewPermissionDB(suite.db)
 }
 
 func (suite *PermissionDBTestSuite) TearDownTest() {
@@ -33,15 +33,15 @@ func TestSuitePermissionDB(t *testing.T) {
 	suite.Run(t, new(PermissionDBTestSuite))
 }
 
-func (suite *PermissionDBTestSuite) TestPermissionDBRepository_AddPermission_ShouldAddPermissionToDatabase() {
+func (suite *PermissionDBTestSuite) TestPermissionDB_AddPermission_ShouldAddPermissionToDatabase() {
 	var (
 		err             error
 		stmt            *sql.Stmt
-		foundPermission permission.Permission
+		foundPermission permissionDomain.Permission
 	)
 	permission := makePermission("", "")
 
-	permission, err = suite.repo.AddPermission(permission)
+	permission, err = suite.sut.AddPermission(permission)
 	assert.Nil(suite.T(), err)
 
 	stmt, err = suite.db.Prepare("select id, codename, name from permissions where id = $1")
@@ -54,15 +54,15 @@ func (suite *PermissionDBTestSuite) TestPermissionDBRepository_AddPermission_Sho
 	assert.Equal(suite.T(), permission.Name, foundPermission.Name)
 }
 
-func (suite *PermissionDBTestSuite) TestPermissionDBRepository_FindPermissionById_ShouldFindPermissionById() {
+func (suite *PermissionDBTestSuite) TestPermissionDB_FindPermissionById_ShouldFindPermissionById() {
 	var (
 		err             error
 		stmt            *sql.Stmt
-		foundPermission permission.Permission
+		foundPermission permissionDomain.Permission
 	)
 
 	permission := makePermission("", "")
-	permission, err = suite.repo.AddPermission(permission)
+	permission, err = suite.sut.AddPermission(permission)
 	assert.Nil(suite.T(), err)
 
 	stmt, err = suite.db.Prepare("select id, codename, name from permissions where id = $1")
@@ -75,60 +75,50 @@ func (suite *PermissionDBTestSuite) TestPermissionDBRepository_FindPermissionByI
 	assert.Equal(suite.T(), permission.Name, foundPermission.Name)
 }
 
-func (suite *PermissionDBTestSuite) TestPermissionDBRepository_DeletePermission_ShouldDeletePermissionFromDatabase() {
-	var (
-		err        error
-		stmt       *sql.Stmt
-		permission *permission.Permission
-	)
-
-	permission = makePermission("", "")
-	_, err = suite.repo.AddPermission(permission)
+func (suite *PermissionDBTestSuite) TestPermissionDB_DeletePermission_ShouldDeletePermissionFromDatabase() {
+	permission := makePermission("", "")
+	_, err := suite.sut.AddPermission(permission)
 	assert.Nil(suite.T(), err)
 
-	err = suite.repo.DeletePermission(permission.ID)
+	err = suite.sut.DeletePermission(permission.ID)
 	assert.Nil(suite.T(), err)
 
-	stmt, err = suite.db.Prepare("select id, codename, name from permissions where id = $1")
-	assert.Nil(suite.T(), err)
-	row := stmt.QueryRow(permission.ID)
-	err = row.Scan(&permission.ID, &permission.Codename, &permission.Name)
+	result, err := suite.sut.FindPermissionById(permission.ID)
 	assert.NotNil(suite.T(), err)
+	assert.Nil(suite.T(), result)
 }
 
-func (suite *PermissionDBTestSuite) TestPermissionDBRepository_FindAllPermissions_ShouldFindAllPermissions() {
+func (suite *PermissionDBTestSuite) TestPermissionDB_FindAllPermissions_ShouldFindAllPermissions() {
 	var (
 		err         error
-		permissions []*permission.Permission
+		permissions []*permissionDomain.Permission
 	)
 
-	permission1 := makePermission("", "")
-	permission2 := makePermission("", "")
-	permission1, err = suite.repo.AddPermission(permission1)
-	assert.Nil(suite.T(), err)
-	permission2, err = suite.repo.AddPermission(permission2)
+	permissionOne := makePermission("", "")
+	permissionOne, err = suite.sut.AddPermission(permissionOne)
 	assert.Nil(suite.T(), err)
 
-	permissions, err = suite.repo.FindAllPermissions()
+	permissionTwo := makePermission("", "")
+	permissionTwo, err = suite.sut.AddPermission(permissionTwo)
 	assert.Nil(suite.T(), err)
 
+	permissions, err = suite.sut.FindAllPermissions()
+	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), 2, len(permissions))
 
-	assert.Equal(suite.T(), permission1.ID, permissions[0].ID)
-	assert.Equal(suite.T(), permission1.Codename, permissions[0].Codename)
-	assert.Equal(suite.T(), permission1.Name, permissions[0].Name)
-
-	assert.Equal(suite.T(), permission2.ID, permissions[1].ID)
-	assert.Equal(suite.T(), permission2.Codename, permissions[1].Codename)
-	assert.Equal(suite.T(), permission2.Name, permissions[1].Name)
+	for k, v := range permissions {
+		assert.Equal(suite.T(), v.ID, permissions[k].ID)
+		assert.Equal(suite.T(), v.Codename, permissions[k].Codename)
+		assert.Equal(suite.T(), v.Name, permissions[k].Name)
+	}
 }
 
-func makePermission(name, codename string) *permission.Permission {
+func makePermission(name, codename string) *permissionDomain.Permission {
 	if name == "" {
 		name = faker.Word()
 	}
 	if codename == "" {
 		codename = fmt.Sprintf("%s.%s", faker.Word(), faker.Word())
 	}
-	return permission.NewPermission(name, codename)
+	return permissionDomain.NewPermission(name, codename)
 }
