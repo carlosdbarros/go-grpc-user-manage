@@ -2,7 +2,21 @@ POST http://localhost:8080/users HTTP/1.1
 Content-Type: application/json
 
 {
-    "name": "Carlos",
+    "name": "Teste 2",
     "email": "test@test.com",
-    "password": "123456"
+    "password": "123"
 }
+
+### Find all users
+GET http://localhost:8080/users HTTP/1.1
+Content-Type: application/json
+
+### Find user by email
+GET http://localhost:8080/users/teste@teste.com HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "teste@teste.com"
+}
+
+###

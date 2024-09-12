@@ -3,7 +3,7 @@ package grpc
 import (
 	"context"
 	"github.com/carlosdbarros/go-grpc-user-manage/internal/domain/user"
-	"github.com/carlosdbarros/go-grpc-user-manage/internal/pb"
+	pb "github.com/carlosdbarros/go-grpc-user-manage/internal/pb/user"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -71,7 +71,7 @@ func (h *UserHandler) FindUserByEmail(_ context.Context, input *pb.FindUserByEma
 	}, nil
 }
 
-func (h *UserHandler) FindAllUsers(_ context.Context, _ *pb.UserEmpty) (*pb.FindAllUsersResponse, error) {
+func (h *UserHandler) FindAllUsers(_ context.Context, _ *pb.Empty) (*pb.FindAllUsersResponse, error) {
 	users, err := h.Repo.FindAllUsers()
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())

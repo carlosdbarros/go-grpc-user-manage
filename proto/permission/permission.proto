@@ -1,16 +1,20 @@
+// ./proto/permission/permission.proto
+
 syntax = "proto3";
+
 package grpc.permission;
-option go_package = "internal/pb";
+
+option go_package = "internal/pb/permission";
 
 
 service PermissionService {
   rpc CreatePermission (CreatePermissionRequest) returns (Permission) {}
   rpc FindPermissionById (FindPermissionByIdRequest) returns (Permission) {}
-  rpc DeletePermission (DeletePermissionRequest) returns (PermissionEmpty) {}
-  rpc FindAllPermissions (PermissionEmpty) returns (FindAllPermissionsResponse) {}
+  rpc DeletePermission (DeletePermissionRequest) returns (Empty) {}
+  rpc FindAllPermissions (Empty) returns (FindAllPermissionsResponse) {}
 }
 
-message PermissionEmpty {}
+message Empty {}
 
 message CreatePermissionRequest {
   string name = 1;

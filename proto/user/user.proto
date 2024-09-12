@@ -1,0 +1,90 @@
+// ./proto/user/user.proto
+
+syntax = "proto3";
+
+package grpc.user;
+
+option go_package = "internal/pb/user";
+
+import "google/api/annotations.proto";
+
+service UserService {
+  rpc CreateUser (CreateUserRequest) returns (User) {
+    option (google.api.http) = {
+      post: "/users"
+      body: "*"
+    };
+  }
+  rpc CreateUserStreamBidirectional (stream CreateUserRequest) returns (stream User) {}
+  rpc FindUserByEmail (FindUserByEmailRequest) returns (User) {
+    option (google.api.http) = {
+      get: "/users"
+      body: "*"
+    };
+  }
+  rpc FindAllUsers (Empty) returns (FindAllUsersResponse) {
+    option (google.api.http) = {
+      get: "/users"
+    };
+  }
+
+  rpc AddUserPermission (AddUserPermissionRequest) returns (User) {}
+  rpc RemoveUserPermission (RemoveUserPermissionRequest) returns (User) {}
+  rpc FindAllUserPermissions (FindAllUserPermissionsRequest) returns (FindAllUserPermissionsResponse) {}
+  rpc HasUserPermissions (HasUserPermissionsRequest) returns (HasUserPermissionsResponse) {}
+}
+
+message Empty {}
+
+message CreateUserRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message User {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+}
+
+message UserPermission {
+  string id = 1;
+  string userId = 2;
+  string permissionId = 3;
+}
+
+message FindUserByEmailRequest {
+  string email = 1;
+}
+
+message FindAllUsersResponse {
+  repeated User users = 1;
+}
+
+message AddUserPermissionRequest {
+  string userId = 1;
+  string permissionId = 2;
+}
+
+message RemoveUserPermissionRequest {
+  string userId = 1;
+  string permissionId = 2;
+}
+
+message FindAllUserPermissionsRequest {
+  string userId = 1;
+}
+
+message FindAllUserPermissionsResponse {
+  repeated UserPermission userPermissions = 1;
+}
+
+message HasUserPermissionsRequest {
+  string userId = 1;
+  repeated string codenames = 2;
+}
+
+message HasUserPermissionsResponse {
+  bool hasPermissions = 1;
+}

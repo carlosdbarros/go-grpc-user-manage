@@ -3,11 +3,13 @@ package main
 import (
 	"database/sql"
 	"github.com/carlosdbarros/go-grpc-user-manage/internal/infra/database"
-	grpc2 "github.com/carlosdbarros/go-grpc-user-manage/internal/infra/grpc"
-	"github.com/carlosdbarros/go-grpc-user-manage/internal/pb"
+	grpcInfra "github.com/carlosdbarros/go-grpc-user-manage/internal/infra/grpc"
+	"github.com/carlosdbarros/go-grpc-user-manage/internal/pb/permission"
+	"github.com/carlosdbarros/go-grpc-user-manage/internal/pb/user"
 	_ "github.com/mattn/go-sqlite3"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"log"
 	"net"
 )
 
@@ -18,27 +20,29 @@ func main() {
 	}
 	defer db.Close()
 
-	userRepo := database.NewUserDBRepository(db)
-	userHandler := grpc2.NewUserHandler(userRepo)
+	// Create route handlers
+	userHandler := grpcInfra.NewUserHandler(database.NewUserDB(db))
+	permHandler := grpcInfra.NewPermissionHandler(database.NewPermissionDB(db))
 
-	permRepo := database.NewPermissionDBRepository(db)
-	permHandler := grpc2.NewPermissionHandler(permRepo)
-
-	// Create a new gRPC server
+	// create a gRPC server instance
 	server := grpc.NewServer()
-	pb.RegisterUserServiceServer(server, userHandler)
-	pb.RegisterPermissionServiceServer(server, permHandler)
+
+	// register the service intances with the grpc server
+	user.RegisterUserServiceServer(server, userHandler)
+	permission.RegisterPermissionServiceServer(server, permHandler)
 	reflection.Register(server)
 
-	// Listen on port 50051
-	lis, err := net.Listen("tcp", ":50051")
+	// create a TCP listener on the specified port
+	const addr = "0.0.0.0:50051"
+	lis, err := net.Listen("tcp", addr)
 	if err != nil {
-		panic(err)
+		log.Fatalf("failed to listen: %v", err)
 	}
 
-	// Serve gRPC server
-	if err := server.Serve(lis); err != nil {
-		panic(err)
+	// start listening to requests
+	log.Printf("🚀 Server listening on %v", addr)
+	if err = server.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
 	}
 }
 
