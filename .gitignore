@@ -28,3 +28,9 @@ go.work.sum
 .idea/
 .vscode/
 
+# Protogen files
+**/*.pb.go
+**/*.pb.gw.go
+
+# Database
+*.db

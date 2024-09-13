@@ -9,12 +9,7 @@ option go_package = "internal/pb/user";
 import "google/api/annotations.proto";
 
 service UserService {
-  rpc CreateUser (CreateUserRequest) returns (User) {
-    option (google.api.http) = {
-      post: "/users"
-      body: "*"
-    };
-  }
+  rpc CreateUser (CreateUserRequest) returns (User) {}
   rpc CreateUserStreamBidirectional (stream CreateUserRequest) returns (stream User) {}
   rpc FindUserByEmail (FindUserByEmailRequest) returns (User) {
     option (google.api.http) = {
