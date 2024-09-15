@@ -1,5 +1,3 @@
-// ./proto/user/user.proto
-
 syntax = "proto3";
 
 package grpc.user;
@@ -9,12 +7,15 @@ option go_package = "internal/pb/user";
 import "google/api/annotations.proto";
 
 service UserService {
-  rpc CreateUser (CreateUserRequest) returns (User) {}
-  rpc CreateUserStreamBidirectional (stream CreateUserRequest) returns (stream User) {}
+  rpc CreateUser (CreateUserRequest) returns (User) {
+    option (google.api.http) = {
+      post: "/users"
+      body: "*"
+    };
+  }
   rpc FindUserByEmail (FindUserByEmailRequest) returns (User) {
     option (google.api.http) = {
-      get: "/users"
-      body: "*"
+      get: "/users/{email}"
     };
   }
   rpc FindAllUsers (Empty) returns (FindAllUsersResponse) {
@@ -22,7 +23,6 @@ service UserService {
       get: "/users"
     };
   }
-
   rpc AddUserPermission (AddUserPermissionRequest) returns (User) {}
   rpc RemoveUserPermission (RemoveUserPermissionRequest) returns (User) {}
   rpc FindAllUserPermissions (FindAllUserPermissionsRequest) returns (FindAllUserPermissionsResponse) {}

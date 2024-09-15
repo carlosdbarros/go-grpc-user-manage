@@ -1,5 +1,3 @@
-// ./proto/permission/permission.proto
-
 syntax = "proto3";
 
 package grpc.permission;

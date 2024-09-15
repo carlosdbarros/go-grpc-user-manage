@@ -34,31 +34,6 @@ func (h *UserHandler) CreateUser(_ context.Context, input *pb.CreateUserRequest)
 	}, nil
 }
 
-func (h *UserHandler) CreateUserStreamBidirectional(stream pb.UserService_CreateUserStreamBidirectionalServer) error {
-	for {
-		input, err := stream.Recv()
-		if err != nil {
-			return err
-		}
-		user, err := userDomain.NewUser(input.Name, input.Email, input.Password)
-		if err != nil {
-			return status.Error(codes.InvalidArgument, err.Error())
-		}
-		_, err = h.Repo.AddUser(user)
-		if err != nil {
-			return status.Error(codes.Internal, err.Error())
-		}
-		err = stream.Send(&pb.User{
-			Id:    user.ID,
-			Name:  user.Name,
-			Email: user.Email,
-		})
-		if err != nil {
-			return err
-		}
-	}
-}
-
 func (h *UserHandler) FindUserByEmail(_ context.Context, input *pb.FindUserByEmailRequest) (*pb.User, error) {
 	user, err := h.Repo.FindUserByEmail(input.Email)
 	if err != nil {
