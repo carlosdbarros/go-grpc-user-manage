@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"github.com/carlosdbarros/go-grpc-user-manage/configs"
 	permissionDomain "github.com/carlosdbarros/go-grpc-user-manage/internal/domain/permission"
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/assert"
@@ -18,7 +19,7 @@ type PermissionDBTestSuite struct {
 
 func (suite *PermissionDBTestSuite) SetupTest() {
 	var err error
-	suite.db, err = initSqliteInMemory()
+	suite.db, err = configs.InitSqliteInMemory()
 	if err != nil {
 		suite.T().Fatal(err)
 	}

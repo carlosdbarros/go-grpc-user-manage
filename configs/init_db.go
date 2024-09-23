@@ -30,3 +30,30 @@ func InitDB() (*sql.DB, error) {
 
 	return db, nil
 }
+
+func InitSqliteInMemory() (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", "file::memory:?cache=shared")
+	if err != nil {
+		return nil, err
+	}
+
+	userStmt, err := db.Prepare("create table if not exists users (id text, name text, email text, password text)")
+	if err != nil {
+		return nil, err
+	}
+	_, err = userStmt.Exec()
+	if err != nil {
+		return nil, err
+	}
+
+	permissionStmt, err := db.Prepare("create table if not exists permissions (id text, name text, codename text)")
+	if err != nil {
+		return nil, err
+	}
+	_, err = permissionStmt.Exec()
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
+}

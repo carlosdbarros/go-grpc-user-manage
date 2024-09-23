@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"github.com/carlosdbarros/go-grpc-user-manage/configs"
 	domainUser "github.com/carlosdbarros/go-grpc-user-manage/internal/domain/user"
 	"github.com/go-faker/faker/v4"
 	_ "github.com/mattn/go-sqlite3"
@@ -18,7 +19,7 @@ type UserDBTestSuite struct {
 
 func (suite *UserDBTestSuite) SetupTest() {
 	var err error
-	suite.db, err = initSqliteInMemory()
+	suite.db, err = configs.InitSqliteInMemory()
 	if err != nil {
 		suite.T().Fatal(err)
 	}

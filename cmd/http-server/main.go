@@ -5,7 +5,7 @@ import (
 	"github.com/carlosdbarros/go-grpc-user-manage/configs"
 	userDomain "github.com/carlosdbarros/go-grpc-user-manage/internal/domain/user"
 	"github.com/carlosdbarros/go-grpc-user-manage/internal/infra/database"
-	"github.com/go-chi/chi/middleware"
+	// "github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 
 	"log"
@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	db, err := configs.InitDB()
+	db, err := configs.InitSqliteInMemory()
 	if err != nil {
 		log.Fatalf("failed to connect to db: %v", err)
 	}
@@ -21,13 +21,13 @@ func main() {
 
 	// Create a new NewRouter and register the middleware
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
+	// r.Use(middleware.Logger)
 
 	// Create route handlers and bind them to the router
 	userRepo := database.NewUserDB(db)
 	userHandler := NewHttpUserHandler(userRepo)
-	r.Get("/users", userHandler.FindAllUsers)
 	r.Post("/users", userHandler.CreateUser)
+	r.Get("/users", userHandler.FindAllUsers)
 
 	// Start the server
 	log.Println("🚀 Server listening on :8080")
