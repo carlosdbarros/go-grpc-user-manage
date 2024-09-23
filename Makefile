@@ -8,11 +8,15 @@ PB_PATH=./internal/pb
 ## Targets
 .PHONY: run-grpc-server
 run-grpc-server:
-	cd cmd/grpc-server && $(GOCMD) run main.go
+	cd cmd/grpc-server && \
+	$(GOCMD) build -o grpc-server && \
+	./grpc-server
 
 .PHONY: run-http-server
 run-http-server:
-	cd cmd/http-server && $(GOCMD) run main.go
+	cd cmd/http-server && \
+	$(GOCMD) build -o http-server && \
+	./http-server
 
 .PHONY: tidy
 tidy:
@@ -35,8 +39,8 @@ evans:
 	evans -r repl --host localhost --port 50051
 
 ## gRPC
-.PHONY: protoc
-protoc:
+.PHONY: protogen
+protogen:
 	protoc -I ./proto --go_out=$(PB_PATH) --go_opt=paths=source_relative \
  		--go-grpc_out=$(PB_PATH) --go-grpc_opt=paths=source_relative \
  		--grpc-gateway_out=$(PB_PATH) --grpc-gateway_opt paths=source_relative --grpc-gateway_opt generate_unbound_methods=true \
