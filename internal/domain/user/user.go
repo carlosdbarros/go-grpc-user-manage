@@ -14,17 +14,17 @@ type User struct {
 }
 
 func NewUser(name, email, password string) (*User, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return nil, err
-	}
+	//hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	//if err != nil {
+	//	return nil, err
+	//}
 	user := &User{
 		ID:       uuid.NewString(),
 		Name:     name,
 		Email:    email,
-		Password: string(hashedPassword),
+		Password: password,
 	}
-	err = user.Validate()
+	err := user.Validate()
 	if err != nil {
 		return nil, err
 	}

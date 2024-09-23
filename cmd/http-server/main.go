@@ -30,8 +30,9 @@ func main() {
 	r.Get("/users", userHandler.FindAllUsers)
 
 	// Start the server
-	log.Println("🚀 Server listening on :8080")
-	if err := http.ListenAndServe(":8080", r); err != nil {
+	addr := "0.0.0.0:8080"
+	log.Println("🚀 Server listening on: ", addr)
+	if err := http.ListenAndServe(addr, r); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
@@ -62,7 +63,7 @@ func (h *HttpUserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	_, err = h.repo.AddUser(user)
+	user, err = h.repo.AddUser(user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -73,6 +74,7 @@ func (h *HttpUserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	//log.Printf("Successfully created user: %v", user)
 }
 
 func (h *HttpUserHandler) FindAllUsers(w http.ResponseWriter, r *http.Request) {

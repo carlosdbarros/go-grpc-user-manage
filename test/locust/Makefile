@@ -11,6 +11,7 @@ protogen:
 	python -m grpc_tools.protoc -I$(PB_ROOT) \
 		--python_out=$(PB_OUT) \
 		--grpc_python_out=$(PB_OUT) \
+		--pyi_out=$(PB_OUT) \
 		$(PB_ROOT)/**/*.proto $(PB_ROOT)/**/**/*.proto
 
 .PHONY: stress

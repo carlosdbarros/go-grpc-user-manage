@@ -23,13 +23,14 @@ func NewUserHandler(repo userDomain.UserRepository) *UserHandler {
 func (h *UserHandler) CreateUser(_ context.Context, input *pb.CreateUserRequest) (*pb.User, error) {
 	user, err := userDomain.NewUser(input.Name, input.Email, input.Password)
 	if err != nil {
+		log.Printf("Failed to create user: %v", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
-	//_, err = h.Repo.AddUser(user)
+	//user, err = h.Repo.AddUser(user)
 	//if err != nil {
+	//	log.Printf("Failed to add user: %v", err)
 	//	return nil, status.Error(codes.Internal, err.Error())
 	//}
-	log.Printf("CreateUser => %v", user.Name)
 	return &pb.User{
 		Id:    user.ID,
 		Name:  user.Name,
@@ -41,36 +42,32 @@ func (h *UserHandler) CreateUserStream(stream pb.UserService_CreateUserStreamSer
 	for {
 		input, err := stream.Recv()
 		if err == io.EOF {
-			log.Printf("End of stream")
+			//log.Printf("End of stream")
 			return nil
 		}
 		if err != nil {
-			log.Printf("Failed to receive user: %v\nerro: %v", input, err)
+			//log.Printf("Failed to receive user: %v\nerro: %v", input, err)
 			return err
 		}
 		user, err := userDomain.NewUser(input.Name, input.Email, input.Password)
 		if err != nil {
-			log.Printf("Failed to create user: %v", err)
+			//log.Printf("Failed to create user: %v", err)
 			return status.Error(codes.InvalidArgument, err.Error())
 		}
-		//_, err = h.Repo.AddUser(user)
+		//user, err = h.Repo.AddUser(user)
 		//if err != nil {
 		//	return status.Error(codes.Internal, err.Error())
 		//}
-		// if stream.Context().Err() != nil {
-		// 	log.Printf("Context error: %v", stream.Context().Err())
-		// 	return stream.Context().Err()
-		// }
 		err = stream.Send(&pb.User{
 			Id:    user.ID,
 			Name:  user.Name,
 			Email: user.Email,
 		})
 		if err != nil {
-			log.Printf("Failed to send user: %v", err)
+			//log.Printf("Failed to send user: %v", err)
 			return err
 		}
-		log.Printf("User sent successfully => %v", user)
+		//log.Printf("User sent successfully => %v", user)
 	}
 }
 
