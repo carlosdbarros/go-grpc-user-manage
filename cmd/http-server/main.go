@@ -27,6 +27,7 @@ func main() {
 	userRepo := database.NewUserDB(db)
 	userHandler := NewHttpUserHandler(userRepo)
 	r.Post("/users", userHandler.CreateUser)
+	r.Post("/users-address", userHandler.CreateUserAddress)
 	r.Get("/users", userHandler.FindAllUsers)
 
 	// Start the server
@@ -75,6 +76,43 @@ func (h *HttpUserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//log.Printf("Successfully created user: %v", user)
+}
+
+func (h *HttpUserHandler) CreateUserAddress(w http.ResponseWriter, r *http.Request) {
+	var input userDomain.UserAddress
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	userAddress, err := userDomain.NewUserAddress(input.Name, input.Emails, input.Phones, input.Addresses)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	addressResponse := make([]*userDomain.Address, 0, 10)
+	for _, a := range userAddress.Addresses {
+		addressResponse = append(addressResponse, &userDomain.Address{
+			Street:     a.Street,
+			Number:     a.Number,
+			Complement: a.Complement,
+			City:       a.City,
+			State:      a.State,
+			Country:    a.Country,
+			ZipCode:    a.ZipCode,
+		})
+	}
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(&userDomain.UserAddress{
+		Name:      userAddress.Name,
+		Emails:    userAddress.Emails,
+		Phones:    userAddress.Phones,
+		Addresses: addressResponse,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *HttpUserHandler) FindAllUsers(w http.ResponseWriter, r *http.Request) {

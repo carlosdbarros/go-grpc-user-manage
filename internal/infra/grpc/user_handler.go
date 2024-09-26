@@ -38,7 +38,7 @@ func (h *UserHandler) CreateUser(_ context.Context, input *pb.CreateUserRequest)
 	}, nil
 }
 
-func (h *UserHandler) CreateUserStream(stream pb.UserService_CreateUserStreamServer) error {
+func (h *UserHandler) CreateUserStream(stream pb.UserService_CreateUserStreamStreamServer) error {
 	for {
 		input, err := stream.Recv()
 		if err == io.EOF {
@@ -58,7 +58,7 @@ func (h *UserHandler) CreateUserStream(stream pb.UserService_CreateUserStreamSer
 		//if err != nil {
 		//	return status.Error(codes.Internal, err.Error())
 		//}
-		err = stream.Send(&pb.User{
+		err = stream.Send(&pb.CreateUserResponse{
 			Id:    user.ID,
 			Name:  user.Name,
 			Email: user.Email,

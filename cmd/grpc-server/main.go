@@ -29,8 +29,6 @@ func main() {
 
 	// create a gRPC server instance
 	serverOpts := []grpc.ServerOption{}
-	// serverOpts = append(serverOpts, grpc.UnaryInterceptor(UnaryServerInterceptorCustom()))
-	// serverOpts = append(serverOpts, grpc.StreamInterceptor(StreamServerInterceptorCustom()))
 	server := grpc.NewServer(serverOpts...)
 
 	// register the service intances with the grpc server
@@ -77,7 +75,7 @@ func NewUserHandler(repo userDomain.UserRepository) *UserHandler {
 	return &UserHandler{Repo: repo}
 }
 
-func (h *UserHandler) CreateUser(_ context.Context, input *pb.CreateUserRequest) (*pb.User, error) {
+func (h *UserHandler) CreateUser(_ context.Context, input *pb.CreateUserRequest) (*pb.CreateUserResponse, error) {
 	user, err := userDomain.NewUser(input.Name, input.Email, input.Password)
 	if err != nil {
 		log.Printf("Failed to create user: %v", err)
@@ -89,14 +87,50 @@ func (h *UserHandler) CreateUser(_ context.Context, input *pb.CreateUserRequest)
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	//log.Printf("Successfully created user: %v", user)
-	return &pb.User{
+	return &pb.CreateUserResponse{
 		Id:    user.ID,
 		Name:  user.Name,
 		Email: user.Email,
 	}, nil
 }
 
-func (h *UserHandler) CreateUserStream(stream pb.UserService_CreateUserStreamServer) error {
+func (h *UserHandler) CreateUserAddress(_ context.Context, input *pb.CreateUserAddressRequest) (*pb.CreateUserAddressResponse, error) {
+	//log.Printf("CreateUserAddress: %v", input)
+	addressInput := make([]*userDomain.Address, 0)
+	for _, a := range input.Addresses {
+		address, err := userDomain.NewAddress(a.Street, a.Number, a.Complement, a.City, a.State, a.Country, a.ZipCode)
+		if err != nil {
+			//log.Printf("Failed to create address: %v", err)
+			return nil, status.Error(codes.InvalidArgument, err.Error())
+		}
+		addressInput = append(addressInput, address)
+	}
+	userAddress, err := userDomain.NewUserAddress(input.Name, input.Emails, input.Phones, addressInput)
+	if err != nil {
+		//log.Printf("Failed to create user address: %v", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+	addressResponse := make([]*pb.Address, 0, 10)
+	for _, a := range userAddress.Addresses {
+		addressResponse = append(addressResponse, &pb.Address{
+			Street:     a.Street,
+			Number:     a.Number,
+			Complement: a.Complement,
+			City:       a.City,
+			State:      a.State,
+			Country:    a.Country,
+			ZipCode:    a.ZipCode,
+		})
+	}
+	return &pb.CreateUserAddressResponse{
+		Name:      userAddress.Name,
+		Emails:    userAddress.Emails,
+		Phones:    userAddress.Phones,
+		Addresses: addressResponse,
+	}, nil
+}
+
+func (h *UserHandler) CreateUserStreamStream(stream pb.UserService_CreateUserStreamStreamServer) error {
 	for {
 		input, err := stream.Recv()
 		if err == io.EOF {
@@ -116,7 +150,7 @@ func (h *UserHandler) CreateUserStream(stream pb.UserService_CreateUserStreamSer
 		//if err != nil {
 		//	return status.Error(codes.Internal, err.Error())
 		//}
-		err = stream.Send(&pb.User{
+		err = stream.Send(&pb.CreateUserResponse{
 			Id:    user.ID,
 			Name:  user.Name,
 			Email: user.Email,
@@ -127,20 +161,4 @@ func (h *UserHandler) CreateUserStream(stream pb.UserService_CreateUserStreamSer
 		}
 		//log.Printf("Successfully created user: %v", user)
 	}
-}
-
-func (h *UserHandler) FindAllUsers(_ context.Context, _ *pb.Empty) (*pb.FindAllUsersResponse, error) {
-	users, err := h.Repo.FindAllUsers()
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-	var pbUsers []*pb.User
-	for _, user := range users {
-		pbUsers = append(pbUsers, &pb.User{
-			Id:    user.ID,
-			Name:  user.Name,
-			Email: user.Email,
-		})
-	}
-	return &pb.FindAllUsersResponse{Users: pbUsers}, nil
 }

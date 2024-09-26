@@ -4,11 +4,10 @@ package grpc.user;
 
 option go_package = "internal/pb/user";
 
-
 service UserService {
-  rpc CreateUser (CreateUserRequest) returns (User) {}
-  rpc CreateUserStream (stream CreateUserRequest) returns (stream User) {}
-  rpc FindAllUsers (Empty) returns (FindAllUsersResponse) {}
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {}
+  rpc CreateUserAddress (CreateUserAddressRequest) returns (CreateUserAddressResponse) {}
+  rpc CreateUserStreamStream (stream CreateUserRequest) returns (stream CreateUserResponse) {}
 }
 
 message Empty {}
@@ -19,6 +18,12 @@ message CreateUserRequest {
   string password = 3;
 }
 
+message CreateUserResponse {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+}
+
 message User {
   string id = 1;
   string name = 2;
@@ -27,4 +32,29 @@ message User {
 
 message FindAllUsersResponse {
   repeated User users = 1;
+}
+
+// --------------------
+message Address {
+  string street = 1;
+  string number = 2;
+  string complement = 3;
+  string city = 4;
+  string state = 5;
+  string country = 6;
+  string zipCode = 7;
+}
+
+message CreateUserAddressRequest {
+  string name = 1;
+  repeated string emails = 2;
+  repeated string phones = 3;
+  repeated Address addresses = 4;
+}
+
+message CreateUserAddressResponse {
+  string name = 1;
+  repeated string emails = 2;
+  repeated string phones = 3;
+  repeated Address addresses = 4;
 }
