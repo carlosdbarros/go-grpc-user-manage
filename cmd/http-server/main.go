@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	db, err := configs.InitSqliteInMemory()
+	db, err := configs.InitDB()
 	if err != nil {
 		log.Fatalf("failed to connect to db: %v", err)
 	}

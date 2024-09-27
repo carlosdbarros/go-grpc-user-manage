@@ -1,14 +1,24 @@
 import time
 import string
 import logging
-import grpc
 import faker
 import random
 import typing as t
 
+import grpc
+import grpc.experimental.gevent as grpc_gevent
+
+from gevent import monkey
+
+from locust import User
 from locust.env import Environment
+from locust.exception import LocustError
 
 from user import user_pb2
+
+# patch grpc so that it uses gevent instead of asyncio
+monkey.patch_all()
+grpc_gevent.init_gevent()
 
 faker = faker.Faker()
 logger = logging.getLogger(__name__)
@@ -30,7 +40,7 @@ users = [
     for _ in range(USERS_SIZE)
 ]
 
-usersAddresses = [
+users_addresses = [
     {
         "name": faker.name() if USE_FAKER else STATIC_STR,
         "emails": [
@@ -57,7 +67,7 @@ usersAddresses = [
 
 
 def generate_user_address():
-    return random.choice(usersAddresses)
+    return random.choice(users_addresses)
     # return {
     #     "name": STATIC_STR,
     #     "emails": [ f"{STATIC_STR}@teste.com" for _ in range(LIST_SIZE)],
@@ -77,7 +87,8 @@ def generate_user_address():
     # }
 
 
-def generate_user_address_request(user_address):
+def generate_user_address_request(user_address=None):
+    user_address = user_address or generate_user_address()
     return user_pb2.CreateUserAddressRequest(**user_address)
 
 
@@ -90,7 +101,8 @@ def generate_user():
     # }
 
 
-def generate_user_request(user):
+def generate_user_request(user=None):
+    user = user or generate_user()
     return user_pb2.CreateUserRequest(**user)
 
 
@@ -140,3 +152,37 @@ class LocustClientInterceptor(
             self, continuation, client_call_details, request_iterator
     ):
         return self.intercept_call(continuation, client_call_details, request_iterator)
+
+
+class GrpcUser(User):
+    abstract = True
+
+    host = "localhost:50051"
+    stub_class = None
+
+    channel = None
+    stub = None
+
+    def __init__(self, environment):
+        super().__init__(environment)
+        for attr in ["stub_class"]:
+            if not getattr(self, attr):
+                raise LocustError(
+                    f"Class {self.__class__.__name__} missing required attribute {attr}"
+                )
+
+        target = (self.host or self.environment.host).lstrip("http://")
+        self.channel = grpc.insecure_channel(target)
+        grpc.channel_ready_future(self.channel).result(timeout=10)
+        self.stub = self.stub_class(self.channel)
+
+        self.channel_closed = False
+
+    def on_start(self):
+        self.channel_closed = False
+
+    def on_stop(self, force=False):
+        self.channel_closed = True
+        time.sleep(1)
+        self.channel.close()
+        super().stop(force=True)

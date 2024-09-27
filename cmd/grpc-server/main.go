@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	db, err := configs.InitSqliteInMemory()
+	db, err := configs.InitDB()
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
@@ -29,6 +29,7 @@ func main() {
 
 	// create a gRPC server instance
 	serverOpts := []grpc.ServerOption{}
+	serverOpts = append(serverOpts, grpc.StreamInterceptor(StreamServerInterceptorCustom()))
 	server := grpc.NewServer(serverOpts...)
 
 	// register the service intances with the grpc server
@@ -50,12 +51,12 @@ func main() {
 }
 
 // StreamServerInterceptorCustom
-// func StreamServerInterceptorCustom() grpc.StreamServerInterceptor {
-// 	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-// 		log.Printf("StreamServerInterceptorCustom => %v", info.FullMethod)
-// 		return handler(srv, stream)
-// 	}
-// }
+func StreamServerInterceptorCustom() grpc.StreamServerInterceptor {
+	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+		log.Printf("StreamServerInterceptorCustom => %v", info.FullMethod)
+		return handler(srv, stream)
+	}
+}
 
 // UnaryServerInterceptorCustom
 // func UnaryServerInterceptorCustom() grpc.UnaryServerInterceptor {
@@ -146,10 +147,10 @@ func (h *UserHandler) CreateUserStreamStream(stream pb.UserService_CreateUserStr
 			//log.Printf("Failed to create user: %v", err)
 			return status.Error(codes.InvalidArgument, err.Error())
 		}
-		//user, err = h.Repo.AddUser(user)
-		//if err != nil {
-		//	return status.Error(codes.Internal, err.Error())
-		//}
+		user, err = h.Repo.AddUser(user)
+		if err != nil {
+			return status.Error(codes.Internal, err.Error())
+		}
 		err = stream.Send(&pb.CreateUserResponse{
 			Id:    user.ID,
 			Name:  user.Name,
