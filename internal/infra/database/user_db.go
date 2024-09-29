@@ -14,14 +14,14 @@ func NewUserDB(db *sql.DB) *UserDB {
 }
 
 func (repo *UserDB) AddUser(input *userDomain.User) (*userDomain.User, error) {
-	stmt, err := repo.DB.Prepare("insert into users(id, name, email, password) values ($1, $2, $3, $4)")
-	if err != nil {
-		return nil, err
-	}
-	_, err = stmt.Exec(input.ID, input.Name, input.Email, input.Password)
-	if err != nil {
-		return nil, err
-	}
+	//stmt, err := repo.DB.Prepare("insert into users(id, name, email, password) values ($1, $2, $3, $4)")
+	//if err != nil {
+	//	return nil, err
+	//}
+	//_, err = stmt.Exec(input.ID, input.Name, input.Email, input.Password)
+	//if err != nil {
+	//	return nil, err
+	//}
 	return input, nil
 }
 

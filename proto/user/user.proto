@@ -7,7 +7,8 @@ option go_package = "internal/pb/user";
 service UserService {
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {}
   rpc CreateUserAddress (CreateUserAddressRequest) returns (CreateUserAddressResponse) {}
-  rpc CreateUserStreamStream (stream CreateUserRequest) returns (stream CreateUserResponse) {}
+  rpc CreateUserBidirectional (stream CreateUserRequest) returns (stream CreateUserResponse) {}
+  rpc CreateUserAddressBidirectional (stream CreateUserAddressRequest) returns (stream CreateUserAddressResponse) {}
 }
 
 message Empty {}
