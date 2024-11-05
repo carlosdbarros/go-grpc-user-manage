@@ -1,17 +1,16 @@
-import grpc
-import time
-import string
 import logging
-import faker
 import random
+import string
+import time
 import typing as t
 from functools import wraps
 
+import faker
+import grpc
 from locust import User
 from locust.exception import LocustError
 
 from user import user_pb2, user_pb2_grpc
-
 
 faker = faker.Faker()
 logger = logging.getLogger(__name__)

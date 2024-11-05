@@ -1,8 +1,7 @@
 import queue
+
 import grpc.experimental.gevent as grpc_gevent
-
 from gevent import monkey
-
 from locust import FastHttpUser, HttpUser, task
 
 from utils import (
@@ -15,8 +14,7 @@ from utils import (
     grpc_stopwatch,
 )
 
-
-# patch grpc so that it uses gevent instead of asyncio
+# patch grpc para que ele use gevent em vez de asyncio
 monkey.patch_all()
 grpc_gevent.init_gevent()
 
