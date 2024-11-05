@@ -86,7 +86,6 @@ func (h *UserHandler) CreateUserBidirectional(stream pb.UserService_CreateUserBi
 			return nil
 		}
 		if err != nil {
-			log.Printf("Failed to receive user: %v\nerro: %v", input, err)
 			return err
 		}
 		user, err := userDomain.NewUser(input.Name, input.Email, input.Password)

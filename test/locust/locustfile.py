@@ -1,54 +1,40 @@
-import logging
-import time
 import queue
-
-import grpc
-from locust import FastHttpUser, HttpUser, task
-
-from user import user_pb2_grpc
-
-from utils import (
-    generate_user,
-    generate_user_address,
-    generate_user_address_request,
-    generate_user_request,
-    grpc_stopwatch,
-    GrpcUser,
-    LocustHttpUser,
-)
+import grpc.experimental.gevent as grpc_gevent
 
 from gevent import monkey
-import grpc.experimental.gevent as grpc_gevent
+
+from locust import FastHttpUser, HttpUser, task
+
+from utils import (
+    GrpcUser,
+    LocustHttpUser,
+    make_user,
+    make_user_request,
+    make_user_address,
+    make_user_address_request,
+    grpc_stopwatch,
+)
+
 
 # patch grpc so that it uses gevent instead of asyncio
 monkey.patch_all()
 grpc_gevent.init_gevent()
 
-logger = logging.getLogger(__name__)
-
-BATCH_SIZE = 10
-
 
 class GRPCLoadTest(GrpcUser):
-    stub_class = user_pb2_grpc.UserServiceStub
 
     @task
     @grpc_stopwatch("grpc.user.UserService/CreateUser")
     def create_user_unary(self):
-        return self.stub.CreateUser(generate_user_request(generate_user()))
+        return self.stub.CreateUser(make_user_request())
 
     @task
     @grpc_stopwatch("grpc.user.UserService/CreateUserAddress")
     def create_user_address_unary(self):
-        return self.stub.CreateUserAddress(
-            generate_user_address_request(generate_user_address())
-        )
+        return self.stub.CreateUserAddress(make_user_address_request())
 
 
 class GRPCStreamLoadTest(GrpcUser):
-    compression = grpc.Compression.Gzip
-    stub_class = user_pb2_grpc.UserServiceStub
-
     user_queue = queue.Queue()
     user_address_queue = queue.Queue()
     sender_user = None
@@ -66,13 +52,13 @@ class GRPCStreamLoadTest(GrpcUser):
     @task
     @grpc_stopwatch("grpc.user.UserService/CreateUserBidirectional")
     def create_user_bidirectional_stream(self):
-        self.user_queue.put(generate_user_request())
+        self.user_queue.put(make_user_request())
         return next(self.sender_user)
 
     @task
     @grpc_stopwatch("grpc.user.UserService/CreateUserAddressBidirectional")
     def create_user_address_bidirectional_stream(self):
-        self.user_address_queue.put(generate_user_address_request())
+        self.user_address_queue.put(make_user_address_request())
         return next(self.sender_user_address)
 
 
@@ -80,19 +66,19 @@ class FastHttpLoadTest(LocustHttpUser, FastHttpUser):
 
     @task
     def create_user(self):
-        self.client.post("/users", json=generate_user())
+        self.client.post("/users", json=make_user())
 
     @task
     def create_user_address(self):
-        self.client.post("/users-address", json=generate_user_address())
+        self.client.post("/users-address", json=make_user_address())
 
 
 class HttpLoadTest(LocustHttpUser, HttpUser):
 
     @task
     def create_user(self):
-        self.client.post("/users", json=generate_user())
+        self.client.post("/users", json=make_user())
 
     @task
     def create_user_address(self):
-        self.client.post("/users-address", json=generate_user_address())
+        self.client.post("/users-address", json=make_user_address())
